@@ -56,8 +56,7 @@ public class MsgPool{
 	
 	/**
 	 * 获取消息分组key
-	 * @param id
-	 * @param frameType
+	 * @param frame
 	 * @return
 	 */
 	private static String getMsgMapKey(Object frame){
@@ -67,16 +66,21 @@ public class MsgPool{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if(result.containsKey("id")&&result.containsKey("type")){
-			//System.out.println(result.get("id")+"."+result.get("type"));
-			return result.get("id")+"."+result.get("type");
-		}else{
-			System.out.println("类:"+frame.getClass()+" 不包含 GroupField 注解或注解不完整");
+		if(result.containsKey("repeat")){
+			System.err.println("类:"+frame.getClass()+" GroupField 注解 isId 或 isType 重复");
 			return null;
 		}
 		
-		
-		
+		if(result.containsKey("id")&&result.containsKey("type")){
+			if(result.get("id")==null||result.get("type")==null){
+				System.err.println("类:"+frame.getClass()+" 分组注解参数为空 :"+result);
+				return null;
+			}
+			return result.get("id")+"."+result.get("type");
+		}else{
+			System.err.println("类:"+frame.getClass()+" 不包含 GroupField 注解或注解不完整");
+			return null;
+		}
 	}
 	
 	/**
@@ -100,9 +104,15 @@ public class MsgPool{
 	                 Method getMethod=pd.getReadMethod();
 	                 Object res = getMethod.invoke(frame);
 	            	if(((GroupField)field.getAnnotation(GroupField.class)).isId()){
+	            		 if(result.get("id")!=null){
+	            		 	result.put("repeat", true);
+	            		 }
 		                 result.put("id", res);
                     }
 	            	if(((GroupField)field.getAnnotation(GroupField.class)).isType()){
+	            		 if(result.get("type")!=null){
+	            		 	result.put("repeat", true);
+	            		 }
 		                 result.put("type", res);
                     }
 	            }

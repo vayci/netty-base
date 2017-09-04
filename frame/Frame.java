@@ -8,11 +8,10 @@ import com.gospell.nms.service.netty.base.util.GroupField;
 
 public class Frame extends FrameHead{
 	
-	@GroupField(isId = true , isType = false)
 	private int transId;    // 设备ID
 
     private int funCode;    // 功能码
-
+    
     private int dataLen;    // 数据长度
     
     private String cpuNo;      //CPU序列号
@@ -30,19 +29,9 @@ public class Frame extends FrameHead{
 
 	private int crc16;  // 校验CRC-16
 
-    /**
-     * 通信链路：
-     * 0-有线网络；
-     * 1-4G无线路由器；
-     * 2-4G无线通信终端
-     * 备注：该字段和发射机协议无关
-     */
     private String commLink;
 
-    /**
-     * 通信终端Id
-     * 备注：该字段和发射机协议无关
-     */
+    @GroupField(isId = true , isType = false)
     private String commTerminalId;
     
     
