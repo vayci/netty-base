@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface GroupField {
 	
-	boolean id() default false; 
+	boolean isId() default false; 
 	
-	boolean type() default false; 
+	boolean isType() default false; 
 }

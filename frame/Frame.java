@@ -8,7 +8,7 @@ import com.gospell.nms.service.netty.base.util.GroupField;
 
 public class Frame extends FrameHead{
 	
-	@GroupField(id=true,type=false)
+	@GroupField(isId = true , isType = false)
 	private int transId;    // 设备ID
 
     private int funCode;    // 功能码

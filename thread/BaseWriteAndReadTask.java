@@ -18,6 +18,7 @@ import com.gospell.nms.service.netty.base.util.MsgPool;
  */
 public class BaseWriteAndReadTask<T> implements Callable<Object>{
 	
+	private static final int POLL_TIME_OUT = 120;//队列poll超时时间 (s)
 	
 	private String deviceId;
 	
@@ -36,7 +37,7 @@ public class BaseWriteAndReadTask<T> implements Callable<Object>{
 		if(connector==null){
 			System.out.println("connector 为null");
 			return MsgPool.getMsgGroup(castFrame.getCommTerminalId(),castFrame.getOrderType())
-					.poll(120,TimeUnit.SECONDS);
+					.poll(POLL_TIME_OUT,TimeUnit.SECONDS);
 		}
 		
 		ChannelHandlerContext ctx= connector.getContext();
@@ -54,11 +55,11 @@ public class BaseWriteAndReadTask<T> implements Callable<Object>{
 		try {
 			System.out.println("开始等待设备返回信息");
 			return MsgPool.getMsgGroup(castFrame.getCommTerminalId(),castFrame.getOrderType())
-					.poll(120,TimeUnit.SECONDS);
+					.poll(POLL_TIME_OUT,TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-
+	
 }

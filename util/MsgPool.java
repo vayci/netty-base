@@ -1,9 +1,16 @@
 package com.gospell.nms.service.netty.base.util;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.common.collect.Maps;
 import com.gospell.nms.service.netty.base.frame.Frame;
 
 public class MsgPool{
@@ -53,7 +60,62 @@ public class MsgPool{
 	 * @param frameType
 	 * @return
 	 */
-	private static String getMsgMapKey(Frame frame){
-		return frame.getCommTerminalId()+"."+frame.getOrderType();
+	private static String getMsgMapKey(Object frame){
+		Map<String,Object> result = Maps.newHashMap();
+		try {
+			getField(frame,frame.getClass(),result);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(result.containsKey("id")&&result.containsKey("type")){
+			//System.out.println(result.get("id")+"."+result.get("type"));
+			return result.get("id")+"."+result.get("type");
+		}else{
+			System.out.println("类:"+frame.getClass()+" 不包含 GroupField 注解或注解不完整");
+			return null;
+		}
+		
+		
+		
+	}
+	
+	/**
+	 * 递归反射 帧 注解的 设备id 与 帧类型
+	 * @param frame
+	 * @param clazz
+	 * @param result
+	 * @throws IntrospectionException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	public static void getField(Object frame,Class<? extends Object> clazz ,Map<String,Object> result) 
+			throws IntrospectionException, IllegalAccessException, 
+			IllegalArgumentException, InvocationTargetException{  
+	      
+		Field[] fields = clazz.getDeclaredFields(); 
+	       for (Field field:fields){
+	            if(field.getAnnotation(GroupField.class)!=null){
+	            	PropertyDescriptor pd=new PropertyDescriptor(field.getName(),clazz);
+	                 Method getMethod=pd.getReadMethod();
+	                 Object res = getMethod.invoke(frame);
+	            	if(((GroupField)field.getAnnotation(GroupField.class)).isId()){
+		                 result.put("id", res);
+                    }
+	            	if(((GroupField)field.getAnnotation(GroupField.class)).isType()){
+		                 result.put("type", res);
+                    }
+	            }
+	       }
+	       if(!(clazz.getSuperclass().equals(Object.class))){
+	    	   getField(frame, clazz.getSuperclass(), result);  
+	       }
+	}  
+	
+	public static void main(String[] args) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, IntrospectionException {
+		Frame frame = new Frame();
+		frame.setTransId(123);
+		frame.setOrderType(1);
+		getMsgMapKey(frame);
 	}
 }

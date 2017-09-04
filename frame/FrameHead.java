@@ -4,7 +4,7 @@ import com.gospell.nms.service.netty.base.util.GroupField;
 
 public class FrameHead {
 
-	@GroupField( id=false , type=true )
+	@GroupField( isId=false , isType=true )
     protected int orderType;  // 命令类型码
 
     protected String addrNo;  // 地点（台站）编码
